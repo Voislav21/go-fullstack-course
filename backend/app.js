@@ -1,6 +1,24 @@
+//MONGODB PW: VZr15t6avovpULp9
+//MONGODB CONNECTION: mongodb+srv://Voislav21:<password>@cluster0.xhdimgw.mongodb.net/?retryWrites=true&w=majority
+
 const express = require('express');
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
+
+const Thing = require('./models/thing');
 
 const app = express();
+
+mongoose.connect('mongodb+srv://Voislav21:VZr15t6avovpULp9@cluster0.xhdimgw.mongodb.net/?retryWrites=true&w=majority')
+  .then(() => {
+    console.log('All good, you connecting to mongoDB Atlas!');
+  })
+  .catch((error) => {
+    console.log('Unable to connect to MongoDB Atlas :(');
+    console.error(error);
+  });
+
+app.use(express.json());
 
 app.use((reg,res,next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,26 +27,40 @@ app.use((reg,res,next) => {
   next();
 });
 
-app.use('/api/stuff', (reg,res,next) => {
-  const stuff = [
-    {
-      _id: 'holoouugjfk',
-      title: 'My first thing',
-      description:'All info about my first thing',
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Gitarre_und_Schattenspiel_01.jpg',
-      price: 4900,
-      userId: 'randompop',
-    },
-    {
-      _id: 'mlqdsfhjo',
-      title: 'My second thing',
-      description:'All info about my second thing',
-      imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/3a/Gitarre_und_Schattenspiel_01.jpg',
-      price: 100099,
-      userId: 'randompop2',
-    },
-  ];
-  res.status(200).json(stuff);
+app.use(bodyParser.json());
+
+app.post('/api/stuff', (reg,res,next) => {
+  const thing = new Thing({
+    title: reg.body.title,
+    description: reg.body.description,
+    imageUrl: reg.body.imageUrl,
+    price: reg.body.price,
+    userId: reg.body.userId
+  });
+  thing.save()
+    .then(() => {
+      res.status(201).json({
+        message: 'Post saved successfully!'
+      });
+    }).catch((error) => {
+      res.status(400).json({
+        error: error
+      });
+    });
+});
+
+app.get('/api/stuff', (reg,res,next) => {
+  Thing.find().then(
+    (things) => {
+      res.status(200).json(things);
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
 });
 
 module.exports = app;
