@@ -49,7 +49,23 @@ app.post('/api/stuff', (reg,res,next) => {
     });
 });
 
-app.get('/api/stuff', (reg,res,next) => {
+app.get('/api/stuff/:id', (reg,res,next) => {
+  Thing.findOne({
+    _id: reg.params.id
+  }).then(
+    (thing) => {
+      res.status(200).json(thing);
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+
+app.use('/api/stuff', (reg,res,next) => {
   Thing.find().then(
     (things) => {
       res.status(200).json(things);
