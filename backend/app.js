@@ -65,6 +65,46 @@ app.get('/api/stuff/:id', (reg,res,next) => {
   );
 });
 
+app.put('/api/stuff/:id', (reg,res,next)=>{
+  const thing = new Thing({
+    _id: reg.params.id,
+    title: reg.body.title,
+    description: reg.body.description,
+    imageUrl: reg.body.imageUrl,
+    price: reg.body.price,
+    userId: reg.body.userId
+  });
+  Thing.updateOne({_id: reg.params.id}, thing).then(
+    () => {
+      res.status(201).json({
+        message: 'Thing updated successfully!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+
+app.delete('/api/stuff/:id', (reg,res,next) => {
+  Thing.deleteOne({_id: reg.params.id}).then(
+    () => {
+      res.status(200).json({
+        message: 'Deleted!'
+      });
+    }
+  ).catch(
+    (error) => {
+      res.status(400).json({
+        error: error
+      });
+    }
+  );
+});
+
 app.use('/api/stuff', (reg,res,next) => {
   Thing.find().then(
     (things) => {
