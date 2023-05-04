@@ -38,6 +38,6 @@ app.use(bodyParser.json());
 
 // Register the routers within express app, where the requests go and come from //
 app.use('/api/stuff', stuffRoutes);
-app.use('api/auth', userRoutes);
+app.use('/api/auth', userRoutes);
 
 module.exports = app;
