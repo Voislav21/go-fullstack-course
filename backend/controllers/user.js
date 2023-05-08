@@ -3,6 +3,9 @@
 // Import bcrypt package //
 const bcrypt = require('bcrypt');
 
+// Import JSON Web Token //
+const jwt = require('jsonwebtoken');
+
 // Import user model //
 const User = require('../models/user');
 
@@ -56,11 +59,18 @@ exports.login = (reg, res ,next) => {
                     error: new Error('Incorrect password!')
                 });
             }
+            
+            // Creat token varible to encode our data using the sign method which takes two arguments //
+            const token = jwt.sign(
+                { userId: user._id },
+                'RANDOM_TOKEN_SECRET',
+                // Configuration object //
+                { expiresIn: '24h' });
             // Successfully user found with valid password //
             res.status(200).json({
                 // send back to frontend excepts a json object with two fields //
                 userId: user._id,
-                token: 'token'
+                token: token
             });
         }).catch((error) => {
             res.status(500).json({
