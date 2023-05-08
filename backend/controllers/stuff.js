@@ -1,23 +1,25 @@
 const Thing = require('../models/thing');
 
 exports.createThing = (reg,res,next) => {
-    const thing = new Thing({
-      title: reg.body.title,
-      description: reg.body.description,
-      imageUrl: reg.body.imageUrl,
-      price: reg.body.price,
-      userId: reg.body.userId
-    });
-    thing.save()
-      .then(() => {
-        res.status(201).json({
-          message: 'Post saved successfully!'
-        });
-      }).catch((error) => {
-        res.status(400).json({
-          error: error
-        });
-    });
+  const url = reg.protocol + '://' + reg.get('host');
+  reg.body.thing = JSON.parse(reg.body.thing);
+  const thing = new Thing({
+    title: reg.body.thing.title,
+    description: reg.body.thing.description,
+    imageUrl: url + '/images/' + reg.file.filename,
+    price: reg.body.thing.price,
+    userId: reg.body.thing.userId
+  });
+  thing.save()
+    .then(() => {
+      res.status(201).json({
+        message: 'Post saved successfully!'
+      });
+    }).catch((error) => {
+      res.status(400).json({
+        error: error
+      });
+  });
 };
 
 exports.getOneThing = (reg,res,next) => {

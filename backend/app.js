@@ -7,6 +7,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+// Import package for path //
+const path = require('path');
 
 // Import the routes //
 const stuffRoutes = require('./routes/stuff');
@@ -35,6 +37,9 @@ app.use((reg,res,next) => {
 });
 
 app.use(bodyParser.json());
+
+// Handle request going to /images //
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 // Register the routers within express app, where the requests go and come from //
 app.use('/api/stuff', stuffRoutes);
