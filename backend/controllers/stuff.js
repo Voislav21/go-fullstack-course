@@ -61,17 +61,31 @@ exports.modifyThing = (reg,res,next)=>{
 };
 
 exports.deleteThing = (reg,res,next) => {
-    Thing.deleteOne({_id: reg.params.id}).then(
-      () => {
-        res.status(200).json({
-          message: 'Deleted!'
-        });
-      }
-    ).catch(
-      (error) => {
-        res.status(400).json({
-          error: error
-        });
+    Thing.findOne({_id: reg.params.id}).then(
+      (thing) => {
+        if(!thing) {
+          return res.status(404).json({
+            error: new Error('No such thing!')
+          });
+        }
+        if(thing.userId !== reg.auth.userId) {
+          return res.status(400).json({
+            error: new Error('Unauthorized request!')
+          });
+        }
+        Thing.deleteOne({_id: reg.params.id}).then(
+          () => {
+            res.status(200).json({
+              message: 'Deleted!'
+            });
+          }
+        ).catch(
+          (error) => {
+            res.status(400).json({
+              error: error
+            });
+          }
+        );
       }
     );
 };
