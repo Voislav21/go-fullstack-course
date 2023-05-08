@@ -39,14 +39,31 @@ exports.getOneThing = (reg,res,next) => {
 };
 
 exports.modifyThing = (reg,res,next)=>{
-    const thing = new Thing({
+  // Create new instance of Thing with recieved ID //
+  let thing = new Thing({ _id: reg.params._id });
+  // If received new file with the request, handle the form data and generate image URL //
+  if(reg.file) {
+    const url = reg.protocol + '://' + reg.get('host');
+    // If not received capture request body JSON //
+    reg.body.thing = JSON.parse(reg.body.thing);
+    thing = {
+      _id: reg.params._id,
+      title: reg.body.thing.title,
+      description: reg.body.thing.description,
+      imageUrl: url + '/images/' + reg.file.filename,
+      price: reg.body.thing.price,
+      userId: reg.body.thing.userId
+    };
+  } else {
+    thing = {
       _id: reg.params.id,
       title: reg.body.title,
       description: reg.body.description,
       imageUrl: reg.body.imageUrl,
       price: reg.body.price,
       userId: reg.body.userId
-    });
+    };
+  }
     Thing.updateOne({_id: reg.params.id}, thing).then(
       () => {
         res.status(201).json({
