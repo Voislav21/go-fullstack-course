@@ -1,4 +1,6 @@
 const Thing = require('../models/thing');
+// Node file system package //
+const fs = require('fs');
 
 exports.createThing = (reg,res,next) => {
   const url = reg.protocol + '://' + reg.get('host');
@@ -47,7 +49,7 @@ exports.modifyThing = (reg,res,next)=>{
     // If not received capture request body JSON //
     reg.body.thing = JSON.parse(reg.body.thing);
     thing = {
-      _id: reg.params._id,
+      _id: reg.params.id,
       title: reg.body.thing.title,
       description: reg.body.thing.description,
       imageUrl: url + '/images/' + reg.file.filename,
@@ -79,20 +81,12 @@ exports.modifyThing = (reg,res,next)=>{
     );
 };
 
-exports.deleteThing = (reg,res,next) => {
-    Thing.findOne({_id: reg.params.id}).then(
-      (thing) => {
-        if(!thing) {
-          return res.status(404).json({
-            error: new Error('No such thing!')
-          });
-        }
-        if(thing.userId !== reg.auth.userId) {
-          return res.status(400).json({
-            error: new Error('Unauthorized request!')
-          });
-        }
-        Thing.deleteOne({_id: reg.params.id}).then(
+exports.deleteThing = (req, res, next) => {
+  Thing.findOne({_id: req.params.id}).then(
+    (thing) => {
+      const filename = thing.imageUrl.split('/images/')[1];
+      fs.unlink('images/' + filename, () => {
+        Thing.deleteOne({_id: req.params.id}).then(
           () => {
             res.status(200).json({
               message: 'Deleted!'
@@ -105,8 +99,9 @@ exports.deleteThing = (reg,res,next) => {
             });
           }
         );
-      }
-    );
+      });
+    }
+  );
 };
 
 exports.getAllStuff = (reg,res,next) => {
